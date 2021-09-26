@@ -1,34 +1,35 @@
-// # EXPRESS - LEVANTAR SERVIDOR E CRIAR ROTAS HTTP
+// 1. EXPRESS - LEVANTAR SERVIDOR E CRIAR ROTAS HTTP
 
-// ## criar do "app" express 
+// a. "app" express 
 const express = require('express')
 const app = express()
 
-// ## configurações do express
+// b. configurar do express
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 
-// ## levantar servidor
+// c. levantar servidor
 const port = process.env.PORT || 3000
 app.listen(port, ()=>{
     console.log("Servidor levantado na porta " + port)
 })
 
-// ## criar rotas
+// d. rotas
 app.route('/songs')
-    .get()
-    .post()
+    .get(getAllSongs)
+    .post(postSong)
 app.route('/songs/:songId')
-    .get()
-    .put()
+    .get(getOneSong)
+    .put(updateSong)
     .delete()
 
-/* # BANCO DE DADOS - MONGO DB
-*  - criar esquema para persistencia
-*  - criar métodos para persistência
-*  - criar conexão com o banco de dados 
+
+/* 2. BANCO DE DADOS - MONGO DB
+*  a. esquema para persistencia
+*  b. métodos para persistência
+*  c. conexão com o banco de dados 
 */
-// ## criar esquema para persistência
+// a. esquema para persistência
 const mongoose = require('mongoose')
 const songSchema = mongoose.Schema
 songSchema = {
@@ -36,3 +37,57 @@ songSchema = {
     artist: String
 }
 const song = mongoose.model('songSchema', songSchema)
+
+// b. métodos para persistência
+// (i). getAll
+function getAllSongs(req, res){
+    song.find({}, (error, songs)=>{
+        if(error){
+            res.send('Error: ' + error)
+        } else {
+            res.json(songs)
+        }
+    })
+}
+// (ii). getOne
+function getOneSong(req, res){
+    song.findById({'_id' : req.params.songId}, (error, aSong)=>{
+        if(error){
+            res.send(error)
+        } else{
+            res.json(aSong)
+        }
+    })
+}
+// (iii). post
+function postSong(req, res){
+    const newSong = mongoose.model(req.body)
+    newSong.create({}, (error, sSong)=>{
+        if(error){
+            res.send(error)
+        } else {
+            res.json(sSong)
+        }
+    })
+}
+// (iv). put
+function updateSong(req, res){
+    song.findByIdAndUpdate({"_id" : req.params.songId}, req.body, (error, uSong)=>{
+        if(error){
+            res.send(error)
+        } else {
+            res.json(uSong)
+        }
+    })
+}
+
+// (v). delete
+function deletSong(req, res){
+    song.remove({'_id': req.params.songId}, (error, dSong)=>{
+        if(error){
+            res.send(error)
+        } else {
+            res.json({message: dSong + "foi deletado"})
+        }
+    })
+}
