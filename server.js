@@ -23,4 +23,16 @@ app.route('/songs/:songId')
     .put()
     .delete()
 
-// BANCO DE DADOS - MONGO DB
+/* # BANCO DE DADOS - MONGO DB
+*  - criar esquema para persistencia
+*  - criar métodos para persistência
+*  - criar conexão com o banco de dados 
+*/
+// ## criar esquema para persistência
+const mongoose = require('mongoose')
+const songSchema = mongoose.Schema
+songSchema = {
+    title: String,
+    artist: String
+}
+const song = mongoose.model('songSchema', songSchema)
